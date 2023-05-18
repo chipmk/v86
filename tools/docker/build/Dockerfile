@@ -11,4 +11,4 @@ RUN rustup target add wasm32-unknown-unknown
 
 COPY . .
 
-CMD ["make", "build/libv86.js"]
+CMD ["make", "all"]

@@ -1,9 +1,17 @@
 {
-  "name": "v86",
+  "name": "@chipmk/v86",
   "license": "BSD-2-Clause",
   "version": "0.1.0",
   "main": "build/libv86.js",
+  "files": [
+    "build/libv86.js",
+    "build/v86_all.js*",
+    "build/v86.wasm"
+  ],
   "scripts": {
-    "build": "docker compose run --build --rm v86-build"
+    "clean": "rm -rf build",
+    "build": "docker compose run --build --rm v86-build",
+    "build:clean": "npm run clean && npm run build",
+    "prepublishOnly": "npm run build:clean"
   }
 }
