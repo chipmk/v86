@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  v86-build:
+    build:
+      context: .
+      dockerfile: tools/docker/build/Dockerfile
+      tags:
+        - v86-build
+    volumes:
+      - $PWD:/work

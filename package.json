@@ -4,6 +4,6 @@
   "version": "0.1.0",
   "main": "build/libv86.js",
   "scripts": {
-    "build": "make build/libv86.js"
+    "build": "docker compose run --build --rm v86-build"
   }
 }
