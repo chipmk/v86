@@ -20,7 +20,7 @@ endif
 WASM_OPT ?= false
 
 default: build/v86-debug.wasm
-all: build/v86_all.js build/libv86.js build/v86.wasm
+all: build/v86_all.js build/libv86.js build/v86.wasm build/capstone-x86.min.js build/libwabt.js
 all-debug: build/libv86-debug.js build/v86-debug.wasm
 browser: build/v86_all.js
 

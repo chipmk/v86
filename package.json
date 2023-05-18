@@ -4,9 +4,9 @@
   "version": "0.1.1",
   "main": "build/libv86.js",
   "files": [
-    "build/libv86.js",
-    "build/v86_all.js*",
-    "build/v86.wasm"
+    "build/*.js",
+    "build/*.js.map",
+    "build/*.wasm"
   ],
   "scripts": {
     "clean": "rm -rf build",
