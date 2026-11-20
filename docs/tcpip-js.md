@@ -52,9 +52,9 @@ to forward Ethernet frames in both directions.
 
 ## Start an HTTP service in the guest
 
-If you build the guest image for your app, you can configure the network and
-start your service at boot. To try it by hand, use Buildroot’s built-in
-`inetd` to serve a short HTTP response.
+In your app, you might run Nginx or a Python web app in the guest and start it
+at boot. This example uses `inetd` from the stock Buildroot image to return a
+sample HTTP response.
 
 After Linux boots, paste these commands into the guest shell as root. Use
 `ip link` to check the interface name and replace `eth0` if yours differs.
