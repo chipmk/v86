@@ -1,6 +1,7 @@
 # Connect browser JavaScript to a v86 guest with tcpip.js
 
-Use tcpip.js when you need to communicate with a service inside the guest.
+Use [tcpip.js](https://github.com/chipmk/tcpip.js) when you need to communicate
+with a service inside the guest.
 In this example, JavaScript makes an HTTP request to the guest.
 The request and response stay in the same browser page. No relay server or
 internet connection is needed for that exchange.
