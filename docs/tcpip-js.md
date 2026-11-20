@@ -1,11 +1,11 @@
 # Connect browser JavaScript to a v86 guest with tcpip.js
 
-Use tcpip.js when an application that embeds v86 needs to call a service inside
-its guest. JavaScript and the guest share a virtual Ethernet link in the same
-page. This setup needs no relay server and provides no guest Internet access.
+Use tcpip.js when you need to communicate with a service inside the guest.
+JavaScript and the guest share a virtual Ethernet link in the same page.
+This setup needs no relay server and provides no guest Internet access.
 
 This example requests a file served by a Linux guest. The browser-side stack
-uses `192.168.77.1` and the guest uses `192.168.77.2` on the same subnet.
+uses `192.168.1.1` and the guest uses `192.168.1.2` on the same subnet.
 
 ## Attach the virtual network
 
@@ -14,7 +14,7 @@ with a driver for its emulated NIC. In a project that uses a JavaScript
 bundler, install the networking packages:
 
 ```sh
-npm install tcpip@0.4.1 @tcpip/v86@0.2.4 @tcpip/http@0.2.2
+npm install tcpip@0.4.1 @tcpip/v86@0.2.4 @tcpip/http@0.2.2 @tcpip/transport@0.1.0
 ```
 
 If you use Vite, add `tcpip` and `@tcpip/http` to
@@ -28,20 +28,19 @@ that your guest supports. Add this to the module that creates the emulator:
 import { createStack } from "tcpip";
 import { createV86NetworkStream } from "@tcpip/v86";
 import { createHttp } from "@tcpip/http";
+import { connectStreams } from "@tcpip/transport";
 
 const stack = await createStack();
-const tap = await stack.interfaces.createTap({ ip: "192.168.77.1/24" });
+const tap = await stack.interfaces.createTap({ ip: "192.168.1.1/24" });
 const nic = createV86NetworkStream(emulator);
 
-tap.readable.pipeTo(nic.writable).catch(console.error);
-nic.readable.pipeTo(tap.writable).catch(console.error);
+connectStreams(tap, nic);
 
-const { fetch: guestFetch } = await createHttp(stack.tcp);
+const { fetch: virtualFetch } = await createHttp(stack.tcp);
 await emulator.run();
 ```
 
-The two pipes carry Ethernet frames in each direction. Start both pipes
-without awaiting them. They stay active while the streams are connected.
+`connectStreams()` forwards Ethernet frames between the stack and the guest.
 
 ## Start an HTTP service in the guest
 
@@ -50,12 +49,12 @@ the name and replace `eth0` if yours differs.
 
 ```sh
 ip link set eth0 up
-ip addr add 192.168.77.2/24 dev eth0
+ip addr add 192.168.1.2/24 dev eth0
 
 mkdir -p /tmp/v86-http-demo
 printf 'Hello from v86\n' > /tmp/v86-http-demo/index.html
 cd /tmp/v86-http-demo
-python3 -m http.server 8080 --bind 192.168.77.2
+python3 -m http.server 8080 --bind 192.168.1.2
 ```
 
 Use a Linux image with Python 3 for these commands. The virtual link uses a
@@ -67,17 +66,17 @@ Once the guest prints that the HTTP server is listening, run this from your
 application, for example in a button handler:
 
 ```js
-const response = await guestFetch("http://192.168.77.2:8080/");
+const response = await virtualFetch("http://192.168.1.2:8080/");
 if (!response.ok) {
     throw new Error(`Guest returned HTTP ${response.status}`);
 }
 console.log(await response.text()); // Hello from v86
 ```
 
-`guestFetch` sends plain HTTP over the virtual stack. Use this function for
-guest URLs in your application or pass it to an SDK that accepts a custom
-`fetch` implementation. If the request fails, check the guest interface name,
-its IP address, and the address and port the server listens on.
+`virtualFetch` sends plain HTTP to services reachable on the virtual network.
+You can also pass it to an SDK that accepts a custom `fetch` implementation.
+If the request fails, check the guest interface name, its IP address, and the
+address and port the server listens on.
 
 For other TCP protocols, call
 [`stack.tcp.connect()`](https://github.com/chipmk/tcpip.js#stacktcpconnect)
