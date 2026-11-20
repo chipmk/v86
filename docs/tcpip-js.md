@@ -1,7 +1,7 @@
 # Connect browser JavaScript to a v86 guest with tcpip.js
 
 Use tcpip.js when you need to communicate with a service inside the guest.
-In this example, JavaScript requests a file from a web server in the guest.
+In this example, JavaScript makes an HTTP request to the guest.
 The request and response stay in the same browser page. No relay server or
 internet connection is needed for that exchange.
 
@@ -9,8 +9,18 @@ internet connection is needed for that exchange.
 
 ## Attach the virtual network
 
-Start with a working [v86 embed](../examples/basic.html) and a Linux guest
-with a driver for its emulated NIC. In a project that uses a JavaScript
+Start with a working [v86 embed](../examples/basic.html). To follow along,
+download [Buildroot Linux 6.8](https://i.copy.sh/buildroot-bzimage68.bin).
+Remove the default `cdrom` option and set these options:
+
+```js
+bzimage: { url: "../images/buildroot-bzimage68.bin" },
+memory_size: 64 * 1024 * 1024,
+cmdline: "tsc=reliable mitigations=off random.trust_cpu=on",
+autostart: false,
+```
+
+Serve the image from the URL in `bzimage`. In a project that uses a JavaScript
 bundler, install the networking packages:
 
 ```sh
@@ -20,9 +30,9 @@ npm install tcpip@0.4.1 @tcpip/v86@0.2.4 @tcpip/http@0.2.2 @tcpip/transport@0.1.
 If you use Vite, add `tcpip` and `@tcpip/http` to
 `optimizeDeps.exclude` so their WebAssembly files can load during development.
 
-Remove any relay URL from your v86 configuration. Set `autostart: false` so
-you can attach the virtual network before starting the guest. Keep the NIC type
-that your guest supports. Add this to the module that creates the emulator:
+Remove any relay URL from your v86 configuration. Add this to the module
+that creates the emulator, registering `emulator-ready` immediately after
+creating it:
 
 ```js
 import { createStack } from "tcpip";
@@ -30,6 +40,9 @@ import { createV86NetworkStream } from "@tcpip/v86";
 import { createHttp } from "@tcpip/http";
 import { connectStreams } from "@tcpip/transport";
 
+const ready = new Promise(resolve => {
+    emulator.add_listener("emulator-ready", resolve);
+});
 const stack = await createStack();
 const tap = await stack.interfaces.createTap({ ip: "192.168.1.1/24" });
 const nic = createV86NetworkStream(emulator);
@@ -37,6 +50,7 @@ const nic = createV86NetworkStream(emulator);
 connectStreams(tap, nic);
 
 const { fetch: virtualFetch } = await createHttp(stack.tcp);
+await ready;
 await emulator.run();
 ```
 
@@ -45,8 +59,8 @@ await emulator.run();
 ## Start an HTTP service in the guest
 
 If you build the guest image for your app, you can configure the network and
-start your service at boot. To try it by hand, use a Linux guest with Python 3
-installed. The basic embed example’s `linux.iso` does not include Python.
+start your service at boot. To try it by hand, use Buildroot’s built-in
+`inetd` to serve a short HTTP response.
 
 Run these commands as root in the guest. Use `ip link` to check the interface
 name and replace `eth0` if yours differs.
@@ -55,10 +69,16 @@ name and replace `eth0` if yours differs.
 ip link set eth0 up
 ip addr add 192.168.1.2/24 dev eth0
 
-mkdir -p /tmp/v86-http-demo
-printf 'Hello from v86\n' > /tmp/v86-http-demo/index.html
-cd /tmp/v86-http-demo
-python3 -m http.server 8080 --bind 192.168.1.2
+cat >/tmp/demo-http <<'SERVER'
+#!/bin/sh
+cr=$(printf '\r')
+while IFS= read -r line; do
+    [ "$line" = "$cr" ] && break
+done
+printf 'HTTP/1.0 200 OK\r\nContent-Length: 15\r\n\r\nHello from v86\n'
+SERVER
+chmod +x /tmp/demo-http
+echo '8080 stream tcp nowait nobody /tmp/demo-http demo-http' | inetd -f - &
 ```
 
 The virtual link uses a static address, so it needs no DHCP server, DNS
@@ -66,8 +86,8 @@ resolver, or default gateway.
 
 ## Read the response from JavaScript
 
-Once the guest prints that the HTTP server is listening, run this from your
-application, for example in a button handler:
+In the guest, run `netstat -ln` to confirm port `8080` is listening. Then run
+this from your application:
 
 ```js
 const response = await virtualFetch("http://192.168.1.2:8080/");
