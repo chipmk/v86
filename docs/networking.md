@@ -63,6 +63,11 @@ JavaScript applications that do not use the v86 web interface (but instead embed
    });
    ```
 
+### Connect JavaScript to a guest service
+
+To call a service in the guest from your JavaScript app, see
+[Connect browser JavaScript to a v86 guest with tcpip.js](tcpip-js.md).
+
 ## Network backends
 
 One way to compare the different network backends is how they operate on different layers of the TCP/IP Model (see [Wikipedia](https://en.wikipedia.org/wiki/OSI_model#Comparison_with_TCP/IP_model) for a comparison to the OSI model), approximately:
