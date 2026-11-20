@@ -92,10 +92,24 @@ if (!response.ok) {
 console.log(await response.text()); // Hello from v86
 ```
 
-`virtualFetch` sends plain HTTP to services reachable on the virtual network.
-You can also pass it to an SDK that accepts a custom `fetch` implementation.
 If the request fails, check the guest interface name, its IP address, and the
 address and port the server listens on.
+
+`virtualFetch` follows the Fetch API signature. It accepts `(input, init)` and
+returns a promise for a standard `Response`. It sends plain HTTP over the
+virtual network.
+
+If your guest runs a GraphQL API, pass `virtualFetch` to Apollo Client’s
+`HttpLink`.
+
+```js
+import { HttpLink } from "@apollo/client/link/http";
+
+const link = new HttpLink({
+    uri: "http://192.168.1.2:8080/graphql",
+    fetch: virtualFetch,
+});
+```
 
 For other TCP protocols, call
 [`stack.tcp.connect()`](https://github.com/chipmk/tcpip.js#stacktcpconnect)
