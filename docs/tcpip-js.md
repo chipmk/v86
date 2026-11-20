@@ -17,7 +17,6 @@ Remove the default `cdrom` option and set these options:
 bzimage: { url: "../images/buildroot-bzimage68.bin" },
 memory_size: 64 * 1024 * 1024,
 cmdline: "tsc=reliable mitigations=off random.trust_cpu=on",
-autostart: false,
 ```
 
 Serve the image from the URL in `bzimage`. In a project that uses a JavaScript
@@ -30,9 +29,8 @@ npm install tcpip@0.4.1 @tcpip/v86@0.2.4 @tcpip/http@0.2.2 @tcpip/transport@0.1.
 If you use Vite, add `tcpip` and `@tcpip/http` to
 `optimizeDeps.exclude` so their WebAssembly files can load during development.
 
-Remove any relay URL from your v86 configuration. Add this to the module
-that creates the emulator, registering `emulator-ready` immediately after
-creating it:
+Keep `autostart: true` from the basic embed and remove any relay URL. Add this
+to the module that creates the emulator:
 
 ```js
 import { createStack } from "tcpip";
@@ -40,9 +38,6 @@ import { createV86NetworkStream } from "@tcpip/v86";
 import { createHttp } from "@tcpip/http";
 import { connectStreams } from "@tcpip/transport";
 
-const ready = new Promise(resolve => {
-    emulator.add_listener("emulator-ready", resolve);
-});
 const stack = await createStack();
 const tap = await stack.interfaces.createTap({ ip: "192.168.1.1/24" });
 const nic = createV86NetworkStream(emulator);
@@ -50,8 +45,6 @@ const nic = createV86NetworkStream(emulator);
 connectStreams(tap, nic);
 
 const { fetch: virtualFetch } = await createHttp(stack.tcp);
-await ready;
-await emulator.run();
 ```
 
 `connectStreams()` forwards Ethernet frames between the stack and the guest.
@@ -62,8 +55,8 @@ If you build the guest image for your app, you can configure the network and
 start your service at boot. To try it by hand, use Buildroot’s built-in
 `inetd` to serve a short HTTP response.
 
-Run these commands as root in the guest. Use `ip link` to check the interface
-name and replace `eth0` if yours differs.
+After Linux boots, paste these commands into the guest shell as root. Use
+`ip link` to check the interface name and replace `eth0` if yours differs.
 
 ```sh
 ip link set eth0 up
@@ -82,7 +75,8 @@ echo '8080 stream tcp nowait nobody /tmp/demo-http demo-http' | inetd -f - &
 ```
 
 The virtual link uses a static address, so it needs no DHCP server, DNS
-resolver, or default gateway.
+resolver, or default gateway. To send guest commands from JavaScript, see the
+[v86 serial example](../examples/serial.html).
 
 ## Read the response from JavaScript
 
