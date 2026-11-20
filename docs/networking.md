@@ -65,7 +65,7 @@ JavaScript applications that do not use the v86 web interface (but instead embed
 
 ### Connect JavaScript to a guest service
 
-For a virtual Ethernet link between your application and its guest, see
+To call a service in the guest from your JavaScript app, see
 [Connect browser JavaScript to a v86 guest with tcpip.js](tcpip-js.md).
 
 ## Network backends
