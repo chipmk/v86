@@ -44,8 +44,12 @@ await emulator.run();
 
 ## Start an HTTP service in the guest
 
-In the guest shell, configure the interface as root. Use `ip link` to check
-the name and replace `eth0` if yours differs.
+If you build the guest image for your app, you can configure the network and
+start your service at boot. To try it by hand, use a Linux guest with Python 3
+installed. The basic embed example’s `linux.iso` does not include Python.
+
+Run these commands as root in the guest. Use `ip link` to check the interface
+name and replace `eth0` if yours differs.
 
 ```sh
 ip link set eth0 up
@@ -57,8 +61,8 @@ cd /tmp/v86-http-demo
 python3 -m http.server 8080 --bind 192.168.1.2
 ```
 
-Use a Linux image with Python 3 for these commands. The virtual link uses a
-static address, so it needs no DHCP server, DNS resolver, or default gateway.
+The virtual link uses a static address, so it needs no DHCP server, DNS
+resolver, or default gateway.
 
 ## Read the response from JavaScript
 
