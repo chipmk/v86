@@ -96,9 +96,9 @@ console.log(await response.text()); // Hello from v86
 If the request fails, check the guest interface name, its IP address, and the
 address and port the server listens on.
 
-`virtualFetch` follows the Fetch API signature. It accepts `(input, init)` and
-returns a promise for a standard `Response`. It sends plain HTTP over the
-virtual network.
+`virtualFetch` follows the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch)
+signature. It accepts `(input, init)` and returns a promise for a standard
+`Response`. It sends plain HTTP over the virtual network.
 
 If your guest runs a GraphQL API, pass `virtualFetch` to Apollo Client’s
 `HttpLink`.
