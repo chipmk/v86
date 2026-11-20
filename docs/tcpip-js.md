@@ -8,6 +8,10 @@ internet connection is needed for that exchange.
 
 ![JavaScript calls tcpip.js, which shares an in-browser virtual network with the v86 guest.](tcpip-js-network.svg)
 
+> [!NOTE]
+> In this setup, `virtualFetch()` and the stack’s TCP and UDP sockets can only
+> reach services on the in-browser network. There’s no route to the internet.
+
 ## Attach the virtual network
 
 Start with a working [v86 embed](../examples/basic.html). To follow along,
