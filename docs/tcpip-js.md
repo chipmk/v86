@@ -1,11 +1,11 @@
 # Connect browser JavaScript to a v86 guest with tcpip.js
 
 Use tcpip.js when you need to communicate with a service inside the guest.
-JavaScript and the guest share a virtual Ethernet link in the same page.
-This setup needs no relay server and provides no guest Internet access.
+In this example, JavaScript requests a file from a web server in the guest.
+The request and response stay in the same browser page. No relay server or
+internet connection is needed for that exchange.
 
-This example requests a file served by a Linux guest. The browser-side stack
-uses `192.168.1.1` and the guest uses `192.168.1.2` on the same subnet.
+![JavaScript calls tcpip.js, which shares an in-browser virtual network with the v86 guest.](tcpip-js-network.svg)
 
 ## Attach the virtual network
 
