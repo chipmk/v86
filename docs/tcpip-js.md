@@ -101,7 +101,8 @@ signature. It accepts `(input, init)` and returns a promise for a standard
 `Response`. It sends plain HTTP over the virtual network.
 
 If your library or SDK accepts a custom `fetch` function, pass it `virtualFetch`
-to reach services on that network. For example, Apollo Client is a GraphQL
+to reach services on that network. For example,
+[Apollo Client](https://github.com/apollographql/apollo-client) is a GraphQL
 client that accepts a custom `fetch` through its `HttpLink`.
 
 ```js
@@ -113,7 +114,9 @@ const link = new HttpLink({
 });
 ```
 
-For other TCP protocols, call
-[`stack.tcp.connect()`](https://github.com/chipmk/tcpip.js#stacktcpconnect)
-with the guest address and port. For multiple guests, see
-[tcpip.js bridge interfaces](https://github.com/chipmk/tcpip.js#bridge-interface).
+See the tcpip.js docs for [raw TCP](https://github.com/chipmk/tcpip.js#tcp-api),
+[UDP](https://github.com/chipmk/tcpip.js#udp-api),
+[HTTP](https://github.com/chipmk/tcpip.js/tree/main/packages/http),
+[DNS](https://github.com/chipmk/tcpip.js#dns), and
+[DHCP](https://github.com/chipmk/tcpip.js/tree/main/packages/dhcp).
+To connect multiple guests, see [bridge interfaces](https://github.com/chipmk/tcpip.js#bridge-interface).
