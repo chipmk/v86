@@ -47,7 +47,8 @@ connectStreams(tap, nic);
 const { fetch: virtualFetch } = await createHttp(stack.tcp);
 ```
 
-`connectStreams()` forwards Ethernet frames between the stack and the guest.
+`connectStreams()` uses standard `ReadableStream` and `WritableStream` objects
+to forward Ethernet frames in both directions.
 
 ## Start an HTTP service in the guest
 
