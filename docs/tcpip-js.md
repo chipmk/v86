@@ -101,8 +101,8 @@ signature. It accepts `(input, init)` and returns a promise for a standard
 `Response`. It sends plain HTTP over the virtual network.
 
 If your library or SDK accepts a custom `fetch` function, pass it `virtualFetch`
-to reach services on that network. For example, Apollo Client takes a `fetch`
-option on `HttpLink`.
+to reach services on that network. For example, Apollo Client is a GraphQL
+client that accepts a custom `fetch` through its `HttpLink`.
 
 ```js
 import { HttpLink } from "@apollo/client/link/http";
